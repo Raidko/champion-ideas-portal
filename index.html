@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111419">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'">
+<title>CHAMPION — Ideas Portal</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div class="mark">C</div><div><b>CHAMPION</b><small>IDEAS / WORKBENCH</small></div></div>
+  <div id="nav" class="nav"></div>
+  <div class="vault">
+    <div class="row"><span id="dot" class="dot"></span><b id="vaultStatus">Хранилище закрыто</b></div>
+    <p id="vaultMeta">Идеи зашифрованы AES‑256‑GCM. Ключ не отправляется на сервер.</p>
+    <button id="unlockBtn" class="btn" style="width:100%">Открыть хранилище</button>
+  </div>
+</aside>
+<main class="main">
+  <div class="top">
+    <div><div class="kicker">PROJECT DISCOVERY</div><h1>Портфель идей</h1><p>Добавляйте, оценивайте, изучайте, развивайте, откладывайте, принимайте или отклоняйте идеи CHAMPION.</p></div>
+    <div class="actions"><button id="reload" class="btn ghost">↻ Обновить</button><button id="add" class="btn gold">＋ Новая идея</button></div>
+  </div>
+  <div id="metrics" class="metrics"></div>
+  <div class="tools"><input id="search" placeholder="Поиск по идеям, тегам, категориям…"><select id="category"><option value="">Все категории</option></select><select id="sort"><option value="priority">Высокий приоритет</option><option value="updated">Недавно обновлённые</option><option value="interest">По интересности</option><option value="fit">По fit к проекту</option><option value="easy">Сначала простые</option></select></div>
+  <div class="layout">
+    <section><div class="sectionhead"><div><div class="kicker">IDEAS</div><h2 id="listtitle">Все идеи</h2></div><span id="count"></span></div><div id="grid" class="grid"></div><div id="empty" class="empty">Откройте хранилище, чтобы загрузить идеи.</div></section>
+    <aside><div class="lens"><div class="kicker">DECISION LENS</div><h3>Как читать оценки</h3><div><span>Интересность</span><b>Ценность</b></div><div><span>Fit к проекту</span><b>Ценность</b></div><div><span>Инновационность</span><b>Ценность</b></div><div><span>Сложность</span><b class="r">Риск</b></div><div><span>Баланс</span><b class="r">Риск</b></div><p>Высокая ценность + высокий риск означает «сначала discovery», а не «срочно реализовать».</p></div></aside>
+  </div>
+</main>
+</div>
+
+<div id="shade" class="shade hidden"></div>
+<div id="unlockModal" class="modal small hidden">
+  <div class="mh"><div><div class="kicker">ENCRYPTED VAULT</div><h2>Открыть хранилище</h2></div><button class="x close">×</button></div>
+  <div class="mb">
+    <div class="notice"><b>Ключ остаётся только в вашем браузере.</b> Страница загружает из GitHub только зашифрованные карточки. Без ключа содержимое идей прочитать невозможно.</div>
+    <div class="field"><label>Ключ хранилища</label><input id="vaultKey" autocomplete="off" placeholder="Вставьте ключ…"></div>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:12px;color:#9ca7b5;font-size:11px"><input id="remember" type="checkbox" style="width:auto"> Запомнить ключ на этом устройстве</label>
+    <div id="unlockErr" style="color:#df9898;margin-top:10px"></div>
+  </div>
+  <div class="ma"><button class="btn close">Отмена</button><button id="doUnlock" class="btn gold">Открыть</button></div>
+</div>
+
+<div id="ideaModal" class="modal hidden">
+  <div class="mh"><div><div class="kicker">IDEA CARD</div><h2 id="ideaTitleHead">Новая идея</h2></div><button class="x close">×</button></div>
+  <form id="form">
+    <div class="mb form">
+      <div class="fields">
+        <input id="id" type="hidden">
+        <div class="field"><label>Название</label><input id="title" required maxlength="140"></div>
+        <div class="field"><label>Суть идеи</label><textarea id="summary" rows="4" required></textarea></div>
+        <div class="twocol"><div class="field"><label>Категория</label><input id="cat"></div><div class="field"><label>Статус</label><select id="status"></select></div></div>
+        <div class="field"><label>Почему это может работать</label><textarea id="why" rows="3"></textarea></div>
+        <div class="field"><label>Главные риски</label><textarea id="risks" rows="3"></textarea></div>
+        <div class="field"><label>Что проверить</label><textarea id="questions" rows="3"></textarea></div>
+        <div class="field"><label>Следующий шаг</label><textarea id="next" rows="3"></textarea></div>
+        <div class="field"><label>Теги через запятую</label><input id="tags"></div>
+      </div>
+      <div class="ratingbox"><h3>Оценка 1–5</h3><div id="ratings"></div><div class="priority"><small>Расчётный приоритет</small><strong id="pp">—</strong><small style="color:#6f7a88">Сортировка, не автоматическое решение.</small></div></div>
+    </div>
+    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Подготовить синхронизацию</button></div>
+  </form>
+</div>
+
+<div id="saveModal" class="modal small hidden">
+  <div class="mh"><div><div class="kicker">GITHUB SYNC</div><h2>Сохранить изменение</h2></div><button class="x close">×</button></div>
+  <div class="mb"><div class="notice">Карточка уже зашифрована локально. Сейчас откроется стандартная форма GitHub Issue с зашифрованным payload. Нажмите <b>Submit new issue</b>. GitHub Action примет изменение только от аккаунта <b>Raidko</b>, закоммитит его и закроет служебный issue.</div><p id="saveHint" style="color:#9ca7b5;line-height:1.5"></p></div>
+  <div class="ma"><button class="btn close">Отмена</button><button id="openIssue" class="btn gold">Открыть GitHub и сохранить</button></div>
+</div>
+
+<div id="drawer" class="drawer hidden"></div><div id="toast" class="toast hidden"></div>
+
+<script src="./app.js"></script>
+</body>
+</html>
