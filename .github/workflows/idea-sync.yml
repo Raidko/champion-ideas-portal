@@ -1,0 +1,107 @@
+name: Sync encrypted idea
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: champion-idea-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: startsWith(github.event.issue.title, '[CHAMPION IDEA SYNC] ')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject non-owner requests
+        if: github.actor != 'Raidko'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh issue comment "$ISSUE" --repo "$REPO" --body "Sync rejected: only the repository owner can update the encrypted vault."
+          gh issue close "$ISSUE" --repo "$REPO" --reason "not planned"
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Validate and stage encrypted payload
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, re
+
+          title = os.environ.get('ISSUE_TITLE', '')
+          body = os.environ.get('ISSUE_BODY', '')
+          m = re.fullmatch(r'\[CHAMPION IDEA SYNC\] (IDEA-\d{3,})', title)
+          if not m:
+              raise SystemExit('invalid sync title')
+          idea_id = m.group(1)
+
+          marker = re.search(
+              r'<!-- CHAMPION_VAULT_BEGIN -->\s*(\{.*\})\s*<!-- CHAMPION_VAULT_END -->',
+              body,
+              flags=re.S,
+          )
+          if not marker:
+              raise SystemExit('encrypted payload marker not found')
+
+          payload = json.loads(marker.group(1))
+          if set(payload) != {'version', 'algorithm', 'iv', 'ciphertext'}:
+              raise SystemExit('unexpected payload fields')
+          if payload['version'] != 1 or payload['algorithm'] != 'AES-256-GCM':
+              raise SystemExit('unsupported encrypted payload')
+          for field in ('iv', 'ciphertext'):
+              if not isinstance(payload[field], str) or not payload[field] or len(payload[field]) > 200000:
+                  raise SystemExit(f'invalid {field}')
+
+          idea_dir = pathlib.Path('data/ideas')
+          idea_dir.mkdir(parents=True, exist_ok=True)
+          (idea_dir / f'{idea_id}.enc.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+
+          index_path = pathlib.Path('data/index.json')
+          if index_path.exists():
+              index = json.loads(index_path.read_text(encoding='utf-8'))
+          else:
+              index = {'schema_version': 1, 'ideas': []}
+          if index.get('schema_version') != 1 or not isinstance(index.get('ideas'), list):
+              raise SystemExit('invalid vault index')
+          if idea_id not in index['ideas']:
+              index['ideas'].append(idea_id)
+          index['ideas'] = sorted(set(index['ideas']), key=lambda x: int(x.split('-')[1]))
+          index_path.parent.mkdir(parents=True, exist_ok=True)
+          index_path.write_text(json.dumps(index, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Commit vault update
+        run: |
+          git config user.name "champion-ideas-bot"
+          git config user.email "champion-ideas-bot@users.noreply.github.com"
+          git add data/index.json data/ideas/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "ideas: sync encrypted card from issue #${{ github.event.issue.number }}"
+            git push origin HEAD:main
+          fi
+
+      - name: Close service issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh issue comment "$ISSUE" --repo "$REPO" --body "Encrypted idea synchronized to the vault. Return to the portal and press **Обновить**."
+          gh issue close "$ISSUE" --repo "$REPO" --reason "completed"
