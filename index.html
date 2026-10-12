@@ -6,80 +6,123 @@
 <meta name="theme-color" content="#f6f8fb">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'">
-<title>CHAMPION — Ideas Portal</title>
+<title>CHAMPION — Ideas Workbench</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <div class="app">
-<aside class="side">
-  <div class="brand"><div class="mark">C</div><div><b>CHAMPION</b><small>IDEAS / WORKBENCH</small></div></div>
-  <div id="nav" class="nav"></div>
-  <div class="vault">
-    <div class="row"><span id="dot" class="dot"></span><b id="vaultStatus">Хранилище закрыто</b></div>
-    <p id="vaultMeta">Идеи зашифрованы AES‑256‑GCM. Ключ не отправляется на сервер.</p>
-    <button id="unlockBtn" class="btn" style="width:100%">Открыть хранилище</button>
-  </div>
-</aside>
-<main class="main">
-  <div class="top">
-    <div><div class="kicker">PROJECT DISCOVERY</div><h1>Портфель идей</h1><p>Добавляйте, оценивайте, изучайте, развивайте, откладывайте, принимайте или отклоняйте идеи CHAMPION.</p></div>
-    <div class="actions"><button id="reload" class="btn ghost">↻ Обновить</button><button id="syncPending" class="btn sync hidden">Синхронизировать</button><button id="add" class="btn gold">＋ Новая идея</button></div>
-  </div>
-  <div id="metrics" class="metrics"></div>
-  <div class="tools"><input id="search" placeholder="Поиск по идеям, тегам, категориям…"><select id="category"><option value="">Все категории</option></select><select id="sort"><option value="priority">Высокий приоритет</option><option value="updated">Недавно обновлённые</option><option value="interest">По интересности</option><option value="fit">По fit к проекту</option><option value="easy">Сначала простые</option></select></div>
-  <div class="layout">
-    <section><div class="sectionhead"><div><div class="kicker">IDEAS</div><h2 id="listtitle">Все идеи</h2></div><span id="count"></span></div><div id="grid" class="grid"></div><div id="empty" class="empty">Откройте хранилище, чтобы загрузить идеи.</div></section>
-    <aside><div class="lens"><div class="kicker">DECISION LENS</div><h3>Как читать оценки</h3><div><span>Интересность</span><b>Ценность</b></div><div><span>Fit к проекту</span><b>Ценность</b></div><div><span>Инновационность</span><b>Ценность</b></div><div><span>Сложность</span><b class="r">Риск</b></div><div><span>Баланс</span><b class="r">Риск</b></div><p>Высокая ценность + высокий риск означает «сначала discovery», а не «срочно реализовать».</p></div></aside>
-  </div>
-</main>
+  <aside class="side">
+    <div class="brand">
+      <div class="mark">C</div>
+      <div><b>CHAMPION</b><small>IDEAS WORKBENCH</small></div>
+    </div>
+    <div class="nav-label">Статусы</div>
+    <div id="nav" class="nav"></div>
+    <div class="vault">
+      <div class="vault-line"><span id="dot" class="dot"></span><b id="vaultStatus">Хранилище закрыто</b></div>
+      <div id="vaultMeta" class="vault-meta">Идеи зашифрованы локально.</div>
+      <button id="unlockBtn" class="link-btn">Открыть хранилище</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="workbar">
+      <div class="workbar-left">
+        <h1>Идеи</h1>
+        <div id="metrics" class="metrics"></div>
+      </div>
+      <div class="actions">
+        <button id="reload" class="btn ghost" title="Обновить из GitHub">↻ <span>Обновить</span></button>
+        <button id="syncPending" class="btn sync hidden">Синхронизировать</button>
+        <button id="add" class="btn primary">＋ Новая идея <kbd>N</kbd></button>
+      </div>
+    </header>
+
+    <div class="tools">
+      <div class="search-wrap"><span>⌕</span><input id="search" placeholder="Поиск по идеям, тегам, категориям…"><kbd>/</kbd></div>
+      <select id="category"><option value="">Все категории</option></select>
+      <select id="sort">
+        <option value="priority">Приоритет</option>
+        <option value="updated">Недавно обновлённые</option>
+        <option value="interest">Интересность</option>
+        <option value="fit">Fit к проекту</option>
+        <option value="easy">Сначала простые</option>
+      </select>
+    </div>
+
+    <section class="content">
+      <div class="sectionhead">
+        <h2 id="listtitle">Все идеи</h2>
+        <span id="count"></span>
+      </div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty">Откройте хранилище, чтобы загрузить идеи.</div>
+    </section>
+  </main>
 </div>
 
 <div id="shade" class="shade hidden"></div>
+
 <div id="unlockModal" class="modal small hidden">
-  <div class="mh"><div><div class="kicker">ENCRYPTED VAULT</div><h2>Открыть хранилище</h2></div><button class="x close">×</button></div>
+  <div class="mh"><div><div class="eyebrow">Хранилище</div><h2>Открыть идеи</h2></div><button class="x close">×</button></div>
   <div class="mb">
-    <div class="notice"><b>Ключ остаётся только в вашем браузере.</b> Страница загружает из GitHub только зашифрованные карточки. Без ключа содержимое идей прочитать невозможно.</div>
+    <div class="notice"><b>Ключ остаётся только в браузере.</b> GitHub хранит только зашифрованные карточки.</div>
     <div class="field"><label>Ключ хранилища</label><input id="vaultKey" autocomplete="off" placeholder="Вставьте ключ…"></div>
-    <label style="display:flex;gap:8px;align-items:center;margin-top:12px;color:#9ca7b5;font-size:11px"><input id="remember" type="checkbox" style="width:auto"> Запомнить ключ на этом устройстве</label>
-    <div id="unlockErr" style="color:#df9898;margin-top:10px"></div>
+    <label class="checkline"><input id="remember" type="checkbox"> Запомнить на этом устройстве</label>
+    <div id="unlockErr" class="error"></div>
   </div>
-  <div class="ma"><button class="btn close">Отмена</button><button id="doUnlock" class="btn gold">Открыть</button></div>
+  <div class="ma"><button class="btn close">Отмена</button><button id="doUnlock" class="btn primary">Открыть</button></div>
 </div>
 
-<div id="quickModal" class="modal small quick-modal hidden">
-  <div class="mh"><div><div class="kicker">QUICK CAPTURE</div><h2>Новая идея</h2></div><button class="x close">×</button></div>
+<div id="quickModal" class="modal quick-modal hidden">
+  <div class="mh"><div><div class="eyebrow">Быстрая фиксация</div><h2>Новая идея</h2></div><button class="x close">×</button></div>
   <form id="quickForm">
     <div class="mb">
-      <div class="quick-copy">Просто запишите мысль. Первая строка станет названием, остальное — описанием. Оценки и детали можно добавить потом.</div>
-      <textarea id="quickText" class="quick-text" rows="7" required placeholder="Например:\nПостоянная угроза поселению\nИгроки вынуждены отбиваться от регулярных набегов, для этого существуют чемпионы…"></textarea>
-      <div class="quick-hint">Ctrl + Enter — создать карточку</div>
+      <textarea id="quickText" class="quick-text" rows="6" required placeholder="Название идеи
+Коротко опишите мысль — остальное можно добавить потом."></textarea>
+      <div class="quick-hint">Первая строка станет названием · <b>Ctrl + Enter</b> — создать</div>
     </div>
-    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Создать карточку</button></div>
+    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn primary">Создать карточку</button></div>
   </form>
 </div>
 
-<div id="ideaModal" class="modal hidden">
-  <div class="mh"><div><div class="kicker">IDEA CARD</div><h2 id="ideaTitleHead">Новая идея</h2></div><button class="x close">×</button></div>
+<div id="ideaModal" class="modal editor hidden">
+  <div class="mh"><div><div class="eyebrow">Проработка идеи</div><h2 id="ideaTitleHead">Идея</h2></div><button class="x close">×</button></div>
   <form id="form">
-    <div class="mb form">
-      <div class="fields">
+    <div class="editor-body">
+      <div class="editor-main">
         <input id="id" type="hidden">
         <div class="field"><label>Название</label><input id="title" required maxlength="140"></div>
         <div class="field"><label>Суть идеи</label><textarea id="summary" rows="4" required></textarea></div>
-        <div class="twocol"><div class="field"><label>Категория</label><input id="cat"></div><div class="field"><label>Статус</label><select id="status"></select></div></div>
-        <div class="field"><label>Почему это может работать</label><textarea id="why" rows="3"></textarea></div>
-        <div class="field"><label>Главные риски</label><textarea id="risks" rows="3"></textarea></div>
-        <div class="field"><label>Что проверить</label><textarea id="questions" rows="3"></textarea></div>
-        <div class="field"><label>Следующий шаг</label><textarea id="next" rows="3"></textarea></div>
-        <div class="field"><label>Теги через запятую</label><input id="tags"></div>
+        <div class="twocol">
+          <div class="field"><label>Категория</label><input id="cat" placeholder="Например: PvE / World / Economy"></div>
+          <div class="field"><label>Статус</label><select id="status"></select></div>
+        </div>
+        <div class="field"><label>Теги</label><input id="tags" placeholder="season, pve, community"></div>
+
+        <details id="advancedPanel" class="advanced">
+          <summary><span>Проработка</span><small>риски, проверка, следующий шаг</small></summary>
+          <div class="advanced-body">
+            <div class="field"><label>Почему это может работать</label><textarea id="why" rows="3"></textarea></div>
+            <div class="field"><label>Главные риски</label><textarea id="risks" rows="3"></textarea></div>
+            <div class="field"><label>Что проверить</label><textarea id="questions" rows="3"></textarea></div>
+            <div class="field"><label>Следующий шаг</label><textarea id="next" rows="3"></textarea></div>
+          </div>
+        </details>
       </div>
-      <div class="ratingbox"><h3>Оценка 1–5</h3><div id="ratings"></div><div class="priority"><small>Расчётный приоритет</small><strong id="pp">—</strong><small style="color:#6f7a88">Сортировка, не автоматическое решение.</small></div></div>
+
+      <aside class="ratingbox">
+        <div class="rating-title"><h3>Оценка</h3><span>1–5</span></div>
+        <div id="ratings"></div>
+        <div class="priority"><span>Приоритет</span><strong id="pp">—</strong></div>
+      </aside>
     </div>
-    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Сохранить изменения</button></div>
+    <div class="ma sticky-actions"><button type="button" class="btn close">Отмена</button><button class="btn primary">Сохранить</button></div>
   </form>
 </div>
 
-<div id="drawer" class="drawer hidden"></div><div id="toast" class="toast hidden"></div>
+<div id="drawer" class="drawer hidden"></div>
+<div id="toast" class="toast hidden"></div>
 
 <script src="./app.js"></script>
 </body>
