@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f7fb">
+<meta name="theme-color" content="#f6f8fb">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'">
 <title>CHAMPION — Ideas Portal</title>
@@ -23,7 +23,7 @@
 <main class="main">
   <div class="top">
     <div><div class="kicker">PROJECT DISCOVERY</div><h1>Портфель идей</h1><p>Добавляйте, оценивайте, изучайте, развивайте, откладывайте, принимайте или отклоняйте идеи CHAMPION.</p></div>
-    <div class="actions"><button id="reload" class="btn ghost">↻ Обновить</button><button id="add" class="btn gold">＋ Новая идея</button></div>
+    <div class="actions"><button id="reload" class="btn ghost">↻ Обновить</button><button id="syncPending" class="btn sync hidden">Синхронизировать</button><button id="add" class="btn gold">＋ Новая идея</button></div>
   </div>
   <div id="metrics" class="metrics"></div>
   <div class="tools"><input id="search" placeholder="Поиск по идеям, тегам, категориям…"><select id="category"><option value="">Все категории</option></select><select id="sort"><option value="priority">Высокий приоритет</option><option value="updated">Недавно обновлённые</option><option value="interest">По интересности</option><option value="fit">По fit к проекту</option><option value="easy">Сначала простые</option></select></div>
@@ -46,6 +46,18 @@
   <div class="ma"><button class="btn close">Отмена</button><button id="doUnlock" class="btn gold">Открыть</button></div>
 </div>
 
+<div id="quickModal" class="modal small quick-modal hidden">
+  <div class="mh"><div><div class="kicker">QUICK CAPTURE</div><h2>Новая идея</h2></div><button class="x close">×</button></div>
+  <form id="quickForm">
+    <div class="mb">
+      <div class="quick-copy">Просто запишите мысль. Первая строка станет названием, остальное — описанием. Оценки и детали можно добавить потом.</div>
+      <textarea id="quickText" class="quick-text" rows="7" required placeholder="Например:\nПостоянная угроза поселению\nИгроки вынуждены отбиваться от регулярных набегов, для этого существуют чемпионы…"></textarea>
+      <div class="quick-hint">Ctrl + Enter — создать карточку</div>
+    </div>
+    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Создать карточку</button></div>
+  </form>
+</div>
+
 <div id="ideaModal" class="modal hidden">
   <div class="mh"><div><div class="kicker">IDEA CARD</div><h2 id="ideaTitleHead">Новая идея</h2></div><button class="x close">×</button></div>
   <form id="form">
@@ -63,14 +75,8 @@
       </div>
       <div class="ratingbox"><h3>Оценка 1–5</h3><div id="ratings"></div><div class="priority"><small>Расчётный приоритет</small><strong id="pp">—</strong><small style="color:#6f7a88">Сортировка, не автоматическое решение.</small></div></div>
     </div>
-    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Подготовить синхронизацию</button></div>
+    <div class="ma"><button type="button" class="btn close">Отмена</button><button class="btn gold">Сохранить изменения</button></div>
   </form>
-</div>
-
-<div id="saveModal" class="modal small hidden">
-  <div class="mh"><div><div class="kicker">GITHUB SYNC</div><h2>Сохранить изменение</h2></div><button class="x close">×</button></div>
-  <div class="mb"><div class="notice">Карточка уже зашифрована локально. Сейчас откроется стандартная форма GitHub Issue с зашифрованным payload. Нажмите <b>Submit new issue</b>. GitHub Action примет изменение только от аккаунта <b>Raidko</b>, закоммитит его и закроет служебный issue.</div><p id="saveHint" style="color:#9ca7b5;line-height:1.5"></p></div>
-  <div class="ma"><button class="btn close">Отмена</button><button id="openIssue" class="btn gold">Открыть GitHub и сохранить</button></div>
 </div>
 
 <div id="drawer" class="drawer hidden"></div><div id="toast" class="toast hidden"></div>
